@@ -1,0 +1,375 @@
+/* ==========================================================================
+   CryptoStego Vault - Vibrant College Academic Theme
+   (Clean White Glass + Electric Indigo, Emerald & Sunset Coral Accents)
+   ========================================================================== */
+
+:root {
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #ffffff;
+    
+    --border-subtle: #e2e8f0;
+    --border-accent: rgba(79, 70, 229, 0.3);
+    
+    --brand-indigo: #4f46e5;
+    --brand-emerald: #059669;
+    --brand-cyan: #0284c7;
+    --brand-amber: #d97706;
+    --brand-rose: #e11d48;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --vibrant-gradient: linear-gradient(135deg, #4f46e5 0%, #06b6d4 50%, #10b981 100%);
+    --bg-vibrant-mesh: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.10) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 15%, rgba(16, 185, 129, 0.10) 0%, transparent 40%),
+                      radial-gradient(circle at 50% 90%, rgba(244, 63, 94, 0.06) 0%, transparent 50%),
+                      #f8fafc;
+}
+
+body {
+    background: var(--bg-vibrant-mesh);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: -0.01em;
+}
+
+/* Navbar */
+.navbar-custom {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.brand-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Vibrant Glassmorphism Cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-card:hover {
+    border-color: rgba(79, 70, 229, 0.35);
+    box-shadow: 0 20px 35px -5px rgba(79, 70, 229, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.glass-card-elevated {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+/* Vibrant Segmented Nav Pills */
+.custom-nav-pills {
+    background: rgba(241, 245, 249, 0.95);
+    border: 1px solid #e2e8f0;
+    border-radius: 1.1rem;
+    padding: 0.35rem;
+}
+
+.custom-nav-pills .nav-link {
+    color: #64748b;
+    border-radius: 0.85rem;
+    padding: 0.9rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.98rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-nav-pills .nav-link:hover {
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.custom-nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #4f46e5 0%, #059669 100%);
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+}
+
+/* Form Controls - Crisp & Vibrant */
+.form-control, .form-select {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.18) !important;
+    background-color: #ffffff !important;
+}
+
+.input-group-text {
+    background-color: #f1f5f9 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #475569 !important;
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn-aurora {
+    background: linear-gradient(135deg, #4f46e5 0%, #059669 100%);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 0.85rem 2rem;
+    border-radius: 9999px;
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-aurora:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(79, 70, 229, 0.35);
+    color: #ffffff;
+}
+
+.btn-emerald {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.25);
+}
+
+.btn-emerald:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(5, 150, 105, 0.35);
+    color: #ffffff;
+}
+
+/* Stat & Metrics Boxes */
+.stat-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.stat-box:hover {
+    border-color: #4f46e5;
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.08);
+}
+
+.stat-val-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.9rem;
+}
+
+/* Badges */
+.badge-aurora {
+    background: #eef2ff;
+    color: #4f46e5;
+    border: 1px solid #c7d2fe;
+    border-radius: 9999px;
+    font-weight: 600;
+}
+
+.badge-emerald {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    border-radius: 9999px;
+    font-weight: 600;
+}
+
+/* Accordion */
+.accordion-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.85rem !important;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.accordion-button {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background: #f1f5f9 !important;
+    color: #4f46e5 !important;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.accordion-body {
+    background: #ffffff;
+    color: #475569;
+}
+
+/* ==========================================================================
+   Interactive Encryption Scanner & Cybernetic HUD Visuals (Cinematic Overlay)
+   ========================================================================== */
+
+.scan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.scan-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.scan-container {
+    background: #0f172a;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 50px rgba(79, 70, 229, 0.35), 0 0 100px rgba(5, 150, 105, 0.2);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    max-width: 580px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.scan-viewport {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.scan-target-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9) contrast(1.1);
+}
+
+/* Laser Scanline Beam - Encryption (Indigo to Emerald) */
+.laser-beam {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, #10b981 30%, #6366f1 70%, transparent 100%);
+    box-shadow: 0 0 20px 4px #10b981, 0 0 40px 8px #6366f1;
+    animation: scanAnim 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    z-index: 10;
+}
+
+/* Laser Scanline Beam - Decryption (Electric Amber to Cyan) */
+.laser-beam-decode {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, #f59e0b 30%, #06b6d4 70%, transparent 100%);
+    box-shadow: 0 0 20px 4px #f59e0b, 0 0 40px 8px #06b6d4;
+    animation: scanAnimReverse 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    z-index: 10;
+}
+
+@keyframes scanAnim {
+    0% { top: 0%; opacity: 0.8; }
+    100% { top: 98%; opacity: 1; }
+}
+
+@keyframes scanAnimReverse {
+    0% { top: 98%; opacity: 0.9; }
+    100% { top: 0%; opacity: 1; }
+}
+
+.matrix-grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(16, 185, 129, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Terminal HUD Stream */
+.hud-terminal {
+    background: #020617;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    text-align: left;
+    height: 110px;
+    overflow-y: hidden;
+    color: #a7f3d0;
+}
+
+.hud-line {
+    margin-bottom: 0.3rem;
+    opacity: 0;
+    animation: fadeInLine 0.25s forwards;
+}
+
+@keyframes fadeInLine {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

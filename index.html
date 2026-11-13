@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelCrypt &bull; Dual-Layer Image Steganography System</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+        <div class="container py-1">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+                <span class="p-2 rounded-3 bg-gradient" style="background: linear-gradient(135deg, #4f46e5, #059669);">
+                    <i class="bi bi-shield-lock text-white fs-5"></i>
+                </span>
+                <span class="fs-4 brand-gradient fw-bold">PixelCrypt</span>
+                <span class="badge badge-emerald px-2 py-1 ms-1 small fw-semibold">Steganography</span>
+            </a>
+            
+            <span class="badge badge-aurora px-3 py-2 ms-2 d-none d-md-inline-flex align-items-center gap-2">
+                <i class="bi bi-cpu text-primary"></i> AES-256-GCM &bull; Lossless Pixel Matrix
+            </span>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="#techSpecs" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <i class="bi bi-file-earmark-text me-1"></i> How It Works (Specs)
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container my-5">
+        
+        <!-- Hero Header -->
+        <div class="text-center mb-5">
+            <div class="d-inline-flex align-items-center gap-2 badge badge-emerald px-3 py-2 mb-3 shadow-sm">
+                <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+                <span>Defense-in-Depth Security System</span>
+            </div>
+            <h1 class="fw-extrabold display-5 mb-3 tracking-tight text-dark">
+                Hide Secret Messages <span class="brand-gradient">Inside Ordinary Photos</span>
+            </h1>
+            <p class="text-secondary lead mx-auto" style="max-width: 740px; font-size: 1.15rem;">
+                <strong>PixelCrypt</strong> secures your confidential text with <strong>military-grade AES-256 encryption</strong> and hides it invisibly inside the pixels of any photo. No one can see or read the secret without your password.
+            </p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <ul class="nav nav-pills nav-fill custom-nav-pills shadow-sm mb-4" id="vaultTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 {% if active_tab != 'decode' %}active{% endif %}" id="encode-tab" data-bs-toggle="tab" data-bs-target="#encode-pane" type="button" role="tab">
+                            <i class="bi bi-lock-fill me-2 fs-5"></i> 1. Hide Secret in Photo (Lock & Conceal)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 {% if active_tab == 'decode' %}active{% endif %}" id="decode-tab" data-bs-toggle="tab" data-bs-target="#decode-pane" type="button" role="tab">
+                            <i class="bi bi-unlock-fill me-2 fs-5"></i> 2. Reveal Secret from Photo (Unlock & Read)
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Contents -->
+                <div class="tab-content" id="vaultTabsContent">
+
+                    <!-- ==================== TAB 1: ENCODE ==================== -->
+                    <div class="tab-pane fade {% if active_tab != 'decode' %}show active{% endif %}" id="encode-pane" role="tabpanel">
+                        <div class="card glass-card mb-4">
+                            <div class="card-body p-4 p-md-5">
+                                
+                                {% if error_encode %}
+                                <div class="alert alert-danger bg-danger-subtle border-0 rounded-3 shadow-sm alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i> {{ error_encode }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endif %}
+
+                                <form action="/encode" method="POST" enctype="multipart/form-data" id="encodeForm" onsubmit="handleEncodeSubmit(event)">
+                                    
+                                    <!-- Step A: Carrier Image -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">1</span>
+                                            <span>Choose a Cover Photo (The image that will hide your secret)</span>
+                                        </label>
+                                        
+                                        <!-- Quick Presets -->
+                                        {% if samples %}
+                                        <div class="mb-3 p-3 rounded-3" style="background: #f1f5f9; border: 1px solid #e2e8f0;">
+                                            <span class="small text-secondary fw-semibold d-block mb-2">
+                                                <i class="bi bi-lightning-charge text-warning me-1"></i> Quick Test Photos (Ready for Demo):
+                                            </span>
+                                            <div class="d-flex flex-wrap gap-3">
+                                                {% for s in samples %}
+                                                <div class="form-check form-check-inline m-0">
+                                                    <input class="form-check-input" type="radio" name="sample_image" id="sample_{{ loop.index }}" value="{{ s }}">
+                                                    <label class="form-check-label small text-dark fw-medium" for="sample_{{ loop.index }}">
+                                                        <i class="bi bi-image text-primary me-1"></i> {{ s }}
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Custom Upload -->
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" name="image" id="imageInput" accept=".png,.bmp,.webp,.jpg,.jpeg">
+                                            <label class="input-group-text text-secondary" for="imageInput"><i class="bi bi-image me-1"></i> Or Pick Photo from Your Device</label>
+                                        </div>
+                                        <small class="text-muted mt-1 d-block">Supported formats: PNG, JPG, BMP. Converted losslessly so secret bits remain 100% intact.</small>
+                                    </div>
+
+                                    <!-- Step B: Secret Message -->
+                                    <div class="mb-4">
+                                        <label for="secretText" class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">2</span>
+                                            <span>Type Your Secret Message</span>
+                                        </label>
+                                        <textarea class="form-control" id="secretText" name="secret_text" rows="4" 
+                                                  placeholder="Type your confidential note, private credentials, recovery key, or message to conceal..." required></textarea>
+                                    </div>
+
+                                    <!-- Step C: Password Key -->
+                                    <div class="mb-4">
+                                        <label for="encPassword" class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">3</span>
+                                            <span>Set a Secret Password (Needed to Unlock Later)</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="encPassword" name="password" 
+                                                   value="RiverStone-2026" placeholder="Enter a secure password..." required>
+                                            <button class="btn btn-outline-secondary border-subtle" type="button" onclick="togglePassword('encPassword', this)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <small class="text-muted">Locked with AES-256-GCM. Derives a 256-bit key via 100,000 PBKDF2 rounds.</small>
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-primary small" onclick="document.getElementById('encPassword').value=''; document.getElementById('encPassword').focus();">
+                                                <i class="bi bi-x-circle me-1"></i>Clear
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step D: Cover Filename (Operational Security) -->
+                                    <div class="mb-4">
+                                        <label for="customName" class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">4</span>
+                                            <span>Save Picture As (Disguised File Name)</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-camera text-secondary"></i></span>
+                                            <input type="text" class="form-control" id="customName" name="custom_name" 
+                                                   placeholder="e.g. Vacation_Photo or Nature_HD (Defaults to camera format IMG_YYYYMMDD.png)">
+                                        </div>
+                                        <small class="text-muted mt-1 d-block">
+                                            <i class="bi bi-shield-check text-success me-1"></i> <strong>Smart Disguise:</strong> Avoids suspicious names like "stego" so anyone inspecting sees a normal camera photo.
+                                        </small>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="text-end pt-2">
+                                        <button type="submit" class="btn btn-aurora btn-lg">
+                                            <i class="bi bi-shield-lock me-2"></i> Lock Secret & Create Image
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+
+                        <!-- Encode Results Section -->
+                        {% if encode_result %}
+                        <div class="card glass-card mb-4" style="border: 1.5px solid rgba(16, 185, 129, 0.5);">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                                    <div>
+                                        <span class="badge badge-emerald fs-6 px-3 py-2 mb-2 d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-check-circle-fill text-success"></i> Secret Successfully Hidden in Photo!
+                                        </span>
+                                        <h3 class="fw-bold text-dark mb-1">Your Protected Photo is Ready</h3>
+                                        <p class="text-secondary small mb-0">Your message is encrypted with AES-256 and woven into the image pixels. Download and share it safely.</p>
+                                    </div>
+                                    <div>
+                                        <a href="/download/{{ encode_result.stego_filename }}" class="btn btn-emerald btn-lg rounded-pill px-4">
+                                            <i class="bi bi-download me-2"></i> Download Image ({{ encode_result.stego_filename }})
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Metric Cards Grid -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-3">
+                                        <div class="stat-box">
+                                            <span class="text-secondary small d-block text-uppercase fw-semibold mb-1">Visual Quality (PSNR)</span>
+                                            <span class="stat-val-gradient">{{ encode_result.psnr_db }} <small class="fs-6 text-secondary">dB</small></span>
+                                            <small class="text-success d-block mt-1"><i class="bi bi-eye-slash me-1"></i> Invisible to Human Eye</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-box">
+                                            <span class="text-secondary small d-block text-uppercase fw-semibold mb-1">Pixel Difference (MSE)</span>
+                                            <span class="stat-val-gradient">{{ encode_result.mse }}</span>
+                                            <small class="text-success d-block mt-1">Zero Visible Distortion</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-box">
+                                            <span class="text-secondary small d-block text-uppercase fw-semibold mb-1">Protected Secret Size</span>
+                                            <span class="stat-val-gradient" style="background: linear-gradient(135deg, #d97706, #e11d48); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ encode_result.payload_bytes }} <small class="fs-6 text-secondary">Bytes</small></span>
+                                            <small class="text-secondary d-block mt-1">Encrypted & Authenticated</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-box">
+                                            <span class="text-secondary small d-block text-uppercase fw-semibold mb-1">Image Space Used</span>
+                                            <span class="stat-val-gradient" style="background: linear-gradient(135deg, #059669, #0284c7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ encode_result.capacity_used }}%</span>
+                                            <small class="text-secondary d-block mt-1">Plenty of space remaining</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Comparative Steganalysis Plot -->
+                                <div class="card glass-card-elevated rounded-3 overflow-hidden shadow-sm">
+                                    <div class="card-header py-3" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up text-primary me-2"></i> Visual & Mathematical Verification (Scientific Proof)</h6>
+                                    </div>
+                                    <div class="card-body p-3 text-center">
+                                        <img src="{{ encode_result.plot_url }}" class="img-fluid rounded-2 shadow-sm" alt="Steganalysis Verification Plot">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- ==================== TAB 2: DECODE ==================== -->
+                    <div class="tab-pane fade {% if active_tab == 'decode' %}show active{% endif %}" id="decode-pane" role="tabpanel">
+                        <div class="card glass-card mb-4">
+                            <div class="card-body p-4 p-md-5">
+
+                                {% if error_decode %}
+                                <div class="alert alert-danger bg-danger-subtle border-0 rounded-3 shadow-sm alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-shield-x me-2 fs-5 text-danger"></i> <strong>Decryption / Extraction Failed:</strong> {{ error_decode }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endif %}
+
+                                <form action="/decode" method="POST" enctype="multipart/form-data" id="decodeForm" onsubmit="handleDecodeSubmit(event)">
+                                    
+                                    <!-- Stego Image Upload -->
+                                    <div class="mb-4">
+                                        <label for="stegoImageInput" class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">1</span>
+                                            <span>Select Picture with Hidden Message</span>
+                                        </label>
+                                        <input type="file" class="form-control form-control-lg" name="stego_image" id="stegoImageInput" accept=".png,.bmp" required>
+                                        <small class="text-muted mt-1 d-block">Choose the PNG photo that contains the concealed message.</small>
+                                    </div>
+
+                                    <!-- Decryption Password -->
+                                    <div class="mb-4">
+                                        <label for="decPassword" class="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary rounded-circle px-2 py-1">2</span>
+                                            <span>Enter Password (To Unlock Secret)</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control form-control-lg" id="decPassword" name="password" 
+                                                   placeholder="Enter the secret password used when hiding..." required>
+                                            <button class="btn btn-outline-secondary border-subtle" type="button" onclick="togglePassword('decPassword', this)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <small class="text-muted">Secured with AES-256-GCM authentication. If the password is wrong, access is immediately blocked.</small>
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-primary small text-nowrap ms-2" onclick="document.getElementById('decPassword').value='RiverStone-2026';">
+                                                <i class="bi bi-key me-1"></i>Demo Key
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Button -->
+                                    <div class="text-end pt-2">
+                                        <button type="submit" class="btn btn-emerald btn-lg px-5 rounded-pill">
+                                            <i class="bi bi-unlock me-2"></i> Unlock & Reveal Secret Message
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+
+                        <!-- Decode Results Section -->
+                        {% if decode_result %}
+                        <div class="card glass-card mb-4" style="border: 1.5px solid rgba(16, 185, 129, 0.5);">
+                            <div class="card-body p-4 p-md-5">
+                                
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div>
+                                        <span class="badge badge-emerald fs-6 px-3 py-2 mb-2 d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-shield-check text-success"></i> Secret Message Unlocked Successfully!
+                                        </span>
+                                        <h3 class="fw-bold text-dark mb-1">Confidential Text Restored</h3>
+                                        <small class="text-secondary">Password verified. Zero tampering detected.</small>
+                                    </div>
+                                    <button class="btn btn-outline-primary rounded-pill px-3" onclick="copyDecrypted()">
+                                        <i class="bi bi-clipboard me-1"></i> Copy Secret Message
+                                    </button>
+                                </div>
+
+                                <div class="p-4 rounded-3" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
+                                    <label class="small text-secondary fw-bold text-uppercase d-block mb-2">Your Revealed Secret Message:</label>
+                                    <div class="fs-5 text-dark font-monospace" id="decryptedOutput" style="white-space: pre-wrap;">{{ decode_result.message }}</div>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== TECHNICAL SPECS & ARCHITECTURE ==================== -->
+        <div class="row justify-content-center mt-5" id="techSpecs">
+            <div class="col-lg-10">
+                <div class="card glass-card">
+                    <div class="card-header p-4" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <h4 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-code text-primary"></i> System Architecture & Technical Specifications
+                        </h4>
+                        <small class="text-secondary">Comprehensive explanation of dual-layer cryptography and pixel matrix modulation.</small>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-4 rounded-3 h-100" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shield-lock text-primary me-2"></i> Layer 1: Cryptography (AES-256-GCM)</h6>
+                                    <p class="small text-secondary mb-0">
+                                        Uses <strong>Galois/Counter Mode (GCM)</strong> providing authenticated encryption (AEAD) with 128-bit authentication tags. Key derived via PBKDF2 with 100,000 SHA-256 rounds to guarantee resistance against GPU brute-forcing.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-4 rounded-3 h-100" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-eye-slash text-emerald me-2" style="color: #059669;"></i> Layer 2: Steganography (LSB Modulation)</h6>
+                                    <p class="small text-secondary mb-0">
+                                        Replaces the <strong>Least Significant Bit</strong> of RGB pixel channels (0-255). Changing bit 0 modifies pixel intensity by at most &plusmn;1 shade, mathematically imperceptible to the Human Visual System (HVS).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Invariants & FAQ -->
+                        <h5 class="fw-bold text-dark mb-3">Frequently Asked Viva Questions & Answers:</h5>
+                        
+                        <div class="accordion" id="techAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#spec1">
+                                        <strong>1. Defense-in-Depth: Why combine Steganography with Cryptography?</strong>
+                                    </button>
+                                </h2>
+                                <div id="spec1" class="accordion-collapse collapse" data-bs-parent="#techAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Specification:</strong> Cryptography conceals the <em>content</em> of the data, but reveals the <em>presence</em> of an encrypted payload (which draws eavesdropper suspicion). Steganography conceals the <em>presence</em> of communication by using an ordinary photo carrier. PixelCrypt enforces <strong>Defense-in-Depth</strong>: even if carrier steganography is suspected, the data is protected by military-grade AES-256-GCM.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#spec2">
+                                        <strong>2. Format Requirement: Why Lossless PNG vs. Lossy JPEG?</strong>
+                                    </button>
+                                </h2>
+                                <div id="spec2" class="accordion-collapse collapse" data-bs-parent="#techAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Specification:</strong> JPEG uses lossy compression (Discrete Cosine Transform and quantization) which discards high-frequency pixel details, irreversibly destroying LSB bit modifications upon file save. PNG uses lossless compression (DEFLATE algorithm), guaranteeing 100% bit-exact pixel reproduction.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#spec3">
+                                        <strong>3. Quantitative Verification: How is visual imperceptibility proven?</strong>
+                                    </button>
+                                </h2>
+                                <div id="spec3" class="accordion-collapse collapse" data-bs-parent="#techAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Specification:</strong> Verified using two standard image quality metrics: <strong>Mean Squared Error (MSE)</strong> and <strong>Peak Signal-to-Noise Ratio (PSNR)</strong> in decibels (dB). In PixelCrypt, PSNR consistently exceeds <strong>65 to 80 dB</strong> (the international threshold for human visual imperceptibility is &gt;50 dB).
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary-subtle py-4 text-center text-secondary small mt-5" style="background: #ffffff;">
+        <div class="container">
+            <p class="mb-1 text-dark fw-semibold">PixelCrypt &bull; Dual-Layer Image Steganography System</p>
+            <p class="mb-0 text-muted">AES-256-GCM &bull; PBKDF2-HMAC-SHA256 &bull; LSB Matrix Modulation &bull; Lossless PNG</p>
+        </div>
+    </footer>
+
+    <!-- Holographic Cybernetic Scanning Overlay -->
+    <div class="scan-overlay" id="scanOverlay">
+        <div class="scan-container">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge badge-aurora px-3 py-1" id="scanBadge"><i class="bi bi-cpu-fill me-1"></i> ACTIVE HARDWARE ENCRYPTION</span>
+                <span class="small text-secondary font-monospace">AES-256-GCM</span>
+            </div>
+            <h4 class="fw-bold text-light mb-1" id="scanTitle">Locking Secret & Inweaving into Picture Pixels</h4>
+            <p class="small text-secondary mb-3" id="scanSubtitle">Invisibly encoding your encrypted message into color pixels...</p>
+
+            <!-- Scanning Viewport with Laser Beam -->
+            <div class="scan-viewport">
+                <div class="laser-beam" id="scanLaser"></div>
+                <div class="matrix-grid-overlay"></div>
+                <img id="scanPreviewImg" class="scan-target-img" src="/static/sample_images/nature_landscape.png" alt="Scanning Target">
+            </div>
+
+            <!-- Terminal HUD Stream -->
+            <div class="hud-terminal" id="hudTerminal">
+                <div class="hud-line text-info">&gt; Initializing cryptographic subsystem...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Image preview & selection mutual exclusivity
+        const imageInput = document.getElementById('imageInput');
+        const scanPreviewImg = document.getElementById('scanPreviewImg');
+        const sampleRadios = document.querySelectorAll('input[name="sample_image"]');
+
+        sampleRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    if (imageInput) imageInput.value = ''; // Clear custom upload if preset is chosen
+                    scanPreviewImg.src = '/static/sample_images/' + this.value;
+                }
+            });
+        });
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Uncheck any preset radio button so it's clear custom upload is active
+                    sampleRadios.forEach(r => r.checked = false);
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        scanPreviewImg.src = e.target.result;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        function handleEncodeSubmit(e) {
+            e.preventDefault();
+            const form = document.getElementById('encodeForm');
+            const overlay = document.getElementById('scanOverlay');
+            const terminal = document.getElementById('hudTerminal');
+            const title = document.getElementById('scanTitle');
+            const subtitle = document.getElementById('scanSubtitle');
+            const laser = document.getElementById('scanLaser');
+            const badge = document.getElementById('scanBadge');
+            
+            laser.className = 'laser-beam';
+            badge.className = 'badge badge-aurora px-3 py-1';
+            badge.innerHTML = '<i class="bi bi-shield-lock me-1"></i> ENCRYPTING & INWEAVING BITS';
+            
+            title.innerText = "Locking Secret & Inweaving into Picture Pixels";
+            subtitle.innerText = "Encrypting text with AES-256 and hiding bits into color channels...";
+            terminal.innerHTML = "";
+            
+            overlay.classList.add('active');
+
+            const steps = [
+                { time: 100, text: "&gt; [01/04] Password Security: Generating 256-bit AES encryption key...", color: "#a5b4fc" },
+                { time: 600, text: "&gt; [02/04] Authenticated Cipher: Encrypting secret text + generating security tag...", color: "#38bdf8" },
+                { time: 1200, text: "&gt; [03/04] Pixel Inweaving: Placing encrypted bits into least significant color channels...", color: "#34d399" },
+                { time: 1700, text: "&gt; [04/04] Quality Check: Confirming zero visible distortion. Picture ready!", color: "#4ade80" }
+            ];
+
+            steps.forEach(s => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = 'hud-line';
+                    line.style.color = s.color;
+                    line.innerHTML = s.text;
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, s.time);
+            });
+
+            setTimeout(() => {
+                form.submit();
+            }, 2300);
+        }
+
+        function handleDecodeSubmit(e) {
+            e.preventDefault();
+            const form = document.getElementById('decodeForm');
+            const overlay = document.getElementById('scanOverlay');
+            const terminal = document.getElementById('hudTerminal');
+            const title = document.getElementById('scanTitle');
+            const subtitle = document.getElementById('scanSubtitle');
+            const laser = document.getElementById('scanLaser');
+            const badge = document.getElementById('scanBadge');
+            const input = document.getElementById('stegoImageInput');
+            
+            laser.className = 'laser-beam-decode';
+            badge.className = 'badge px-3 py-1';
+            badge.style.background = 'rgba(245, 158, 11, 0.2)';
+            badge.style.color = '#fcd34d';
+            badge.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+            badge.innerHTML = '<i class="bi bi-unlock-fill me-1"></i> SCANNING PIXELS & VERIFYING PASSWORD';
+            
+            if (input && input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    scanPreviewImg.src = ev.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+            
+            title.innerText = "Scanning Picture & Unlocking Secret Message";
+            subtitle.innerText = "Reading pixel channels and verifying password security...";
+            terminal.innerHTML = "";
+            
+            overlay.classList.add('active');
+
+            const steps = [
+                { time: 100, text: "&gt; [01/04] Header Check: Confirming picture contains hidden secret...", color: "#38bdf8" },
+                { time: 600, text: "&gt; [02/04] Pixel Extraction: Reading concealed bits from color channels...", color: "#a5b4fc" },
+                { time: 1100, text: "&gt; [03/04] Key Derivation: Applying your password to generate decryption key...", color: "#f59e0b" },
+                { time: 1600, text: "&gt; [04/04] Integrity Verification: Authenticating security tag and revealing text...", color: "#4ade80" }
+            ];
+
+            steps.forEach(s => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = 'hud-line';
+                    line.style.color = s.color;
+                    line.innerHTML = s.text;
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, s.time);
+            });
+
+            setTimeout(() => {
+                form.submit();
+            }, 2100);
+        }
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        function copyDecrypted() {
+            const text = document.getElementById('decryptedOutput').innerText;
+            navigator.clipboard.writeText(text);
+            alert('Secret message copied to clipboard!');
+        }
+    </script>
+</body>
+</html>

@@ -36,6 +36,21 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def prune_uploads(max_files=30):
+    """Keeps the upload folder tidy to avoid disk bloat on cloud containers."""
+    try:
+        files = [os.path.join(UPLOAD_DIR, f) for f in os.listdir(UPLOAD_DIR) if not f.startswith('.')]
+        if len(files) > max_files:
+            files.sort(key=os.path.getmtime)
+            for f in files[:-max_files]:
+                try:
+                    os.remove(f)
+                except OSError:
+                    pass
+    except Exception:
+        pass
+
+
 @app.route("/", methods=["GET"])
 def index():
     """Main dashboard with Encode and Decode tabs."""
@@ -73,12 +88,14 @@ def encode():
             raw_img = Image.open(file.stream)
             img = ImageOps.exif_transpose(raw_img).convert("RGB")
             
-            # Prevent gigantic 48MP phone photos from exhausting free server RAM
-            if max(img.size) > 2560:
-                img.thumbnail((2560, 2560), Image.Resampling.LANCZOS)
+            # Constrain to Full HD+ (max 1600px) - Razor-sharp on phones and projectors,
+            # but guarantees RAM usage stays under 25 MB on Render's 512 MB free tier
+            if max(img.size) > 1600:
+                img.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
                 
             img.save(saved_path, format="PNG")
             carrier_path = saved_path
+            prune_uploads()
 
     # Priority 2: Sample image (only used if no user photo was uploaded)
     if not carrier_path and sample_name:

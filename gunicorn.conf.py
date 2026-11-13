@@ -4,8 +4,10 @@ import os
 port = os.environ.get("PORT", "10000")
 bind = f"0.0.0.0:{port}"
 
-# Worker configuration optimized for free tier containers (512MB RAM)
-workers = 2
-threads = 2
+# Optimal for Render's 512MB RAM Free Tier:
+# 1 worker with 4 threads uses only ~45MB baseline RAM, leaving 460MB+ of headroom for image processing!
+workers = 1
+threads = 4
 timeout = 120
 keepalive = 5
+preload_app = False

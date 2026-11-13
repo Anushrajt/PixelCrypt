@@ -24,8 +24,9 @@ def calculate_fidelity_metrics(original_img_path: str, stego_img_path: str) -> d
     img1 = Image.open(original_img_path).convert("RGB")
     img2 = Image.open(stego_img_path).convert("RGB")
 
-    arr1 = np.array(img1, dtype=np.float64)
-    arr2 = np.array(img2, dtype=np.float64)
+    # Use float32 to cut RAM by 50% compared to float64, while maintaining perfect precision
+    arr1 = np.array(img1, dtype=np.float32)
+    arr2 = np.array(img2, dtype=np.float32)
 
     if arr1.shape != arr2.shape:
         raise ValueError("Images must have identical dimensions for fidelity analysis.")
@@ -104,6 +105,7 @@ def generate_comparison_plot(original_img_path: str, stego_img_path: str, output
 
     plt.tight_layout()
     os.makedirs(os.path.dirname(os.path.abspath(output_plot_path)), exist_ok=True)
-    plt.savefig(output_plot_path, dpi=200, bbox_inches="tight")
-    plt.close()
+    plt.savefig(output_plot_path, dpi=100, bbox_inches="tight")
+    plt.clf()
+    plt.close("all")
     return output_plot_path

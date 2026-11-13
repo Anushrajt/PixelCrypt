@@ -14,7 +14,7 @@ import uuid
 from datetime import datetime
 from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.utils import secure_filename
-from PIL import Image
+from PIL import Image, ImageOps
 
 from src.crypto_engine import encrypt_message, decrypt_message
 from src.stego_engine import encode_data_into_image, extract_data_from_image, calculate_capacity
@@ -60,24 +60,34 @@ def encode():
         return render_template("index.html", error_encode="Please provide an encryption passphrase.")
 
     carrier_path = None
-    if sample_name:
-        candidate = os.path.join(SAMPLE_DIR, secure_filename(sample_name))
-        if os.path.exists(candidate):
-            carrier_path = candidate
 
-    if not carrier_path and "image" in request.files:
+    # Priority 1: User-uploaded custom image (e.g. from smartphone or PC)
+    if "image" in request.files:
         file = request.files["image"]
         if file and file.filename and allowed_file(file.filename):
             ext = "png"
             unique_name = f"orig_{uuid.uuid4().hex[:8]}.{ext}"
             saved_path = os.path.join(UPLOAD_DIR, unique_name)
-            # Convert uploaded image to PNG to guarantee lossless matrix
-            img = Image.open(file.stream).convert("RGB")
+            
+            # Correct smartphone orientation (EXIF) and convert to lossless RGB
+            raw_img = Image.open(file.stream)
+            img = ImageOps.exif_transpose(raw_img).convert("RGB")
+            
+            # Prevent gigantic 48MP phone photos from exhausting free server RAM
+            if max(img.size) > 2560:
+                img.thumbnail((2560, 2560), Image.Resampling.LANCZOS)
+                
             img.save(saved_path, format="PNG")
             carrier_path = saved_path
 
+    # Priority 2: Sample image (only used if no user photo was uploaded)
+    if not carrier_path and sample_name:
+        candidate = os.path.join(SAMPLE_DIR, secure_filename(sample_name))
+        if os.path.exists(candidate):
+            carrier_path = candidate
+
     if not carrier_path:
-        return render_template("index.html", error_encode="Please upload a carrier image or select a sample image.")
+        return render_template("index.html", error_encode="Please upload a photo or select a sample image.")
 
     try:
         # 1. AES-256-GCM Encrypt
